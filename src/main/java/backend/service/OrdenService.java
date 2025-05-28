@@ -2,6 +2,7 @@ package backend.service;
 
 import backend.dao.*;
 import backend.dto.OrdenResumenDTO;
+import backend.dto.ResumenPedidoDTO;
 import backend.modelo.Comida;
 import backend.modelo.DetalleOrden;
 import backend.modelo.DetalleOrden.DetalleOrdenPK;
@@ -116,6 +117,92 @@ public class OrdenService {
 
         return resumenes;
     }
+    
+    public List<OrdenResumenDTO> listarOrdenesPorMozoYEstado(String codMoz, String estado) {
+    List<Orden> ordenes = ordenRepository.findByCodMozAndEstado(codMoz, estado);
+    List<OrdenResumenDTO> resumenes = new ArrayList<>();
 
+    for (Orden orden : ordenes) {
+        List<OrdenResumenDTO.DetalleDTO> detalles = new ArrayList<>();
+        float total = 0;
+
+        for (DetalleOrden det : orden.getDetalles()) {
+            Comida comida = det.getComida();
+            float precio = comida.getPrecNom();
+            int cantidad = det.getCantidad();
+            float subtotal = precio * cantidad;
+            total += subtotal;
+
+            detalles.add(new OrdenResumenDTO.DetalleDTO(
+                    comida.getCodCom(),
+                    comida.getNomCom(),
+                    precio,
+                    cantidad,
+                    subtotal
+            ));
+        }
+
+        resumenes.add(new OrdenResumenDTO(
+                orden.getCodOr(),
+                orden.getMesa(),
+                orden.getHora().toString(),
+                total,
+                detalles
+        ));
+    }
+
+    return resumenes;
+}
+
+    public void editarOrden(String codOr, List<ResumenPedidoDTO> nuevosDetalles) {
+        Orden orden = ordenRepository.findById(codOr)
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada."));
+
+        if (!orden.getEstado().equals("PENDIENTE")) {
+            throw new RuntimeException("No se puede editar esta orden.");
+        }
+
+        // Eliminar detalles actuales
+        detalleOrdenRepository.deleteAll(orden.getDetalles());
+        orden.getDetalles().clear();
+
+        // Agregar nuevos detalles
+        List<DetalleOrden> nuevos = nuevosDetalles.stream().map(dto -> {
+            DetalleOrdenPK pk = new DetalleOrdenPK(dto.getCodCom(), codOr);
+
+            DetalleOrden det = new DetalleOrden();
+            det.setId(pk);
+            det.setCantidad(dto.getCantidad());
+            det.setOrden(orden);
+            det.setComida(
+                comidaRepository.findById(dto.getCodCom())
+                    .orElseThrow(() -> new RuntimeException("Comida no encontrada: " + dto.getCodCom()))
+            );
+
+            return det;
+        }).toList();
+
+        // Asociar los nuevos detalles a la orden
+        orden.setDetalles(nuevos);
+
+        // Guardar los nuevos detalles primero (opcional, dependiendo del cascade)
+        detalleOrdenRepository.saveAll(nuevos);
+
+        // Guardar la orden actualizada
+        ordenRepository.save(orden);
+    }
+
+    
+    public void marcarComoPagado(String codOr) {
+        Orden orden = ordenRepository.findById(codOr).orElseThrow();
+        orden.setEstado("pagado");
+        ordenRepository.save(orden);
+    }
+
+    public void anularOrden(String codOr) {
+        Orden orden = ordenRepository.findById(codOr).orElseThrow();
+        orden.setEstado("anulado");
+        ordenRepository.save(orden);
+    }
 
 }

@@ -36,4 +36,11 @@ public class MozoService {
             return orderedMap;
         }).collect(Collectors.toList());
     }*/
+    
+    public Mozo login(String correo, String password) {
+        return mozoDAO.findAll().stream()
+            .filter(m -> m.getCorreoMoz().equalsIgnoreCase(correo) && m.getContraMoz().equals(password))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Credenciales inválidas para mozo"));
+    }
 }

@@ -1,5 +1,6 @@
 package backend.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.Data;
@@ -30,5 +31,7 @@ public class Administrador {
     private String img1Adm_base64;
 
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Mozo> mozos;
+    
 }

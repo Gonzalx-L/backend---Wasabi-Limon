@@ -2,11 +2,13 @@ package backend.controller;
 
 import backend.dao.OrdenRepository;
 import backend.dto.OrdenResumenDTO;
+import backend.dto.ResumenPedidoDTO;
 import backend.modelo.Orden;
 import backend.service.OrdenService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/ordenes")
@@ -39,5 +41,25 @@ public class OrdenController {
     public List<OrdenResumenDTO> verResumenPorMozo(@PathVariable String codMoz) {
         return ordenService.listarOrdenesPorMozo(codMoz);
     }
+    
+    @GetMapping("/resumen/mozo/{codMoz}/estado/{estado}")
+    public List<OrdenResumenDTO> listarPorMozoYEstado(@PathVariable String codMoz, @PathVariable String estado) {
+        return ordenService.listarOrdenesPorMozoYEstado(codMoz, estado);
+    }
 
+    @PutMapping("/mozo/{codOr}/editar")
+    public ResponseEntity<?> editarOrden(
+            @PathVariable String codOr,
+            @RequestBody List<ResumenPedidoDTO> nuevosDetalles) {
+        return ResponseEntity.ok("Orden actualizada con éxito.");
+    }
+    @PutMapping("/pagar/{codOr}")
+    public void marcarComoPagado(@PathVariable String codOr) {
+        ordenService.marcarComoPagado(codOr);
+    }
+
+    @PutMapping("/anular/{codOr}")
+    public void anularOrden(@PathVariable String codOr) {
+        ordenService.anularOrden(codOr);
+    }
 }

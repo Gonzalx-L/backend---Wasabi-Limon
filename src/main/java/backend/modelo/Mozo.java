@@ -1,5 +1,6 @@
 package backend.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +35,7 @@ public class Mozo {
 
     @ManyToOne
     @JoinColumn(name = "cod_adm", insertable = false, updatable = false)
+    @JsonIgnore
     private Administrador administrador;
 
 
