@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrdenService {
@@ -46,6 +47,7 @@ public class OrdenService {
         orden.setCodOr(codOr);
         orden.setMesa(1); // puedes ajustar esto dinámicamente
         orden.setHora(Time.valueOf(LocalTime.now()));
+        orden.setEstado("PENDIENTE");
 
         // 3. Asociar mozo "0001"
         Mozo mozo = mozoRepository.findById("0001").orElse(null);
@@ -174,34 +176,25 @@ public class OrdenService {
             det.setId(pk);
             det.setCantidad(dto.getCantidad());
             det.setOrden(orden);
-            det.setComida(
-                comidaRepository.findById(dto.getCodCom())
-                    .orElseThrow(() -> new RuntimeException("Comida no encontrada: " + dto.getCodCom()))
-            );
+            det.setComida(comidaRepository.findById(dto.getCodCom())
+                .orElseThrow(() -> new RuntimeException("Comida no encontrada: " + dto.getCodCom())));
 
             return det;
-        }).toList();
-
-        // Asociar los nuevos detalles a la orden
+        }).collect(Collectors.toList());
         orden.setDetalles(nuevos);
-
-        // Guardar los nuevos detalles primero (opcional, dependiendo del cascade)
-        detalleOrdenRepository.saveAll(nuevos);
-
-        // Guardar la orden actualizada
         ordenRepository.save(orden);
-    }
+        }
 
     
     public void marcarComoPagado(String codOr) {
         Orden orden = ordenRepository.findById(codOr).orElseThrow();
-        orden.setEstado("pagado");
+        orden.setEstado("PAGADO");
         ordenRepository.save(orden);
     }
 
     public void anularOrden(String codOr) {
         Orden orden = ordenRepository.findById(codOr).orElseThrow();
-        orden.setEstado("anulado");
+        orden.setEstado("ANULADO");
         ordenRepository.save(orden);
     }
 

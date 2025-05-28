@@ -8,6 +8,7 @@ import backend.service.OrdenService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 @RestController
@@ -51,7 +52,8 @@ public class OrdenController {
     public ResponseEntity<?> editarOrden(
             @PathVariable String codOr,
             @RequestBody List<ResumenPedidoDTO> nuevosDetalles) {
-        return ResponseEntity.ok("Orden actualizada con éxito.");
+        ordenService.editarOrden(codOr, nuevosDetalles);
+        return ResponseEntity.ok(Map.of("message", "Orden actualizada correctamente"));
     }
     @PutMapping("/pagar/{codOr}")
     public void marcarComoPagado(@PathVariable String codOr) {
