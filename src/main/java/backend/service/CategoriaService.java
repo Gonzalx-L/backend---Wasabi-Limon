@@ -1,6 +1,5 @@
 package backend.service;
 
-import backend.dao.CategoriaRepository;
 import backend.dto.CategoriaNombreDTO;
 import backend.dto.ComidaNombreDTO;
 import backend.modelo.Categoria;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import backend.dao.CategoriaRepository;
 
 @Service
 public class CategoriaService {

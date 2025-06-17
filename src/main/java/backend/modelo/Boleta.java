@@ -53,7 +53,4 @@ public class Boleta {
     @ManyToOne
     @JoinColumn(name = "tipopago", insertable = false, updatable = false)
     private TipoPago tipboleta;
-
-
-
 }

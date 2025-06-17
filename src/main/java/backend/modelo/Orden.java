@@ -1,6 +1,5 @@
 package backend.modelo;
 
-
 import jakarta.persistence.*;
 import java.sql.Time;
 import java.util.List;
@@ -33,5 +32,4 @@ public class Orden {
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
     private List<Boleta> boletas;
 
-
-    }
+}

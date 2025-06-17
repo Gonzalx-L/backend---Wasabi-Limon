@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class OrdenService {
@@ -29,8 +30,8 @@ public class OrdenService {
                         MozoRepository mozoRepository) {
         this.pedidoTemporalService = pedidoTemporalService;
         this.ordenRepository = ordenRepository;
-        this.detalleOrdenRepository = detalleOrdenRepository;
         this.comidaRepository = comidaRepository;
+        this.detalleOrdenRepository = detalleOrdenRepository;
         this.mozoRepository = mozoRepository;
     }
 

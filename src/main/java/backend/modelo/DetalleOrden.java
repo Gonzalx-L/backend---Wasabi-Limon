@@ -3,12 +3,10 @@ package backend.modelo;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Entity
-@Table(
-        name = "detalle_orden",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"cod_com", "cod_or"})
+@Table(name = "detalle_orden",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"cod_com", "cod_or"})
 )
 public class DetalleOrden {
 

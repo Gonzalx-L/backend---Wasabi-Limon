@@ -27,6 +27,4 @@ public class Comida {
 
     @ManyToMany(mappedBy = "comidas")
     private List<Categoria> categorias;
-
-
 }

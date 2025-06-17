@@ -2,11 +2,9 @@ package backend.modelo;
 
 import jakarta.persistence.*;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "tipo_pago")
 public class TipoPago {

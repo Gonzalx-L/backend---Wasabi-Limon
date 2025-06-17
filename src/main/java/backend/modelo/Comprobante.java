@@ -2,11 +2,9 @@ package backend.modelo;
 
 import jakarta.persistence.*;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "comprobante")
 public class Comprobante {
