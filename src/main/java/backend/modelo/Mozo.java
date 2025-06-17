@@ -12,7 +12,6 @@ import lombok.Data;
 public class Mozo {
 
     @Id
-    @Column(name = "cod_moz", length = 4)
     private String codMoz;
 
     @Column(name = "nom_moz", length = 50, nullable = false)

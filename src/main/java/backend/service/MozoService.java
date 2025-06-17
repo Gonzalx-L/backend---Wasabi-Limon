@@ -48,8 +48,8 @@ public class MozoService {
     }
 
     public Mozo actualizarMozo(String id, Mozo mozoDetalles) {
-        if (mozoRepository.existsById(id)) {
-            throw new RuntimeException("El mozo con el id " + id + "No existe");
+        if (!mozoRepository.existsById(id)) {
+            throw new RuntimeException("El mozo con el id " + id + " No existe");
         }
         return mozoRepository.findById(id)
                 .map(mozo -> {
