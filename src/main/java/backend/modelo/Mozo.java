@@ -23,7 +23,6 @@ public class Mozo {
     @Column(name = "contra_moz", length = 50, nullable = false)
     private String contraMoz;
     
-    @JsonIgnore
     @Lob
     @Column(name = "img1_moz", columnDefinition = "BLOB")
     private byte[] img1Moz;
@@ -31,16 +30,13 @@ public class Mozo {
     @Transient
     private String img1Moz_base64;
     
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "cod_adm")
     private Administrador administrador;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "mozo", cascade = CascadeType.ALL)
     private List<Boleta> boletas;
     
-    @JsonIgnore
     @OneToMany(mappedBy = "mozo", cascade = CascadeType.ALL)
     private List<Orden> orden;
 }

@@ -3,6 +3,7 @@ package backend.service;
 import backend.dao.MozoRepository;
 import java.util.List;
 import backend.modelo.Mozo;
+import jakarta.transaction.Transactional;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,19 +17,7 @@ public class MozoService {
     @Autowired
     private MozoRepository mozoRepository;
 
-    public List<Mozo> findMozos() {
-        return mozoRepository.findAll().stream()
-                .map(mozo -> {
-                    if (mozo.getImg1Moz() != null) {
-                        String imgBase64 = Base64.getEncoder().encodeToString(mozo.getImg1Moz());
-                        mozo.setImg1Moz_base64(imgBase64);
-                    }
-                    return mozo;
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<Map<String, Object>> findMozoSinImg() {
+    public List<Map<String, Object>> findMozos() {
         return mozoRepository.findAll().stream().map(mozo -> {
             Map<String, Object> datosMozo = new LinkedHashMap<>();
             datosMozo.put("cod_moz", mozo.getCodMoz());
@@ -36,16 +25,41 @@ public class MozoService {
             datosMozo.put("correo_moz", mozo.getCorreoMoz());
             datosMozo.put("cod_adm", mozo.getAdministrador().getCodAdm());
             datosMozo.put("nom_adm", mozo.getAdministrador().getNomAdm());
+
+            if (mozo.getImg1Moz() != null) {
+                String imgBase64 = Base64.getEncoder().encodeToString(mozo.getImg1Moz());
+                datosMozo.put("img_base64", imgBase64);
+            } else {
+                datosMozo.put("img_base64", null);
+            }
+
             return datosMozo;
         }).collect(Collectors.toList());
     }
 
-    public Mozo findById(String id) {
-        return mozoRepository.findById(id)
+    public Map<String, Object> findById(String id) {
+        Mozo mozo = mozoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("El mozo con ID " + id + " no existe."));
-    }
 
-    public Mozo actualizarMozo(String id, Mozo mozoDetalles) {
+        Map<String, Object> datosMozo = new LinkedHashMap<>();
+        datosMozo.put("cod_moz", mozo.getCodMoz());
+        datosMozo.put("nom_moz", mozo.getNomMoz());
+        datosMozo.put("correo_moz", mozo.getCorreoMoz());
+        datosMozo.put("cod_adm", mozo.getAdministrador().getCodAdm());
+        datosMozo.put("contra_moz", mozo.getContraMoz());
+        datosMozo.put("nom_adm", mozo.getAdministrador().getNomAdm());
+
+        if (mozo.getImg1Moz() != null) {
+            String base64 = Base64.getEncoder().encodeToString(mozo.getImg1Moz());
+            datosMozo.put("img_base64", base64);
+        } else {
+            datosMozo.put("img_base64", null);
+        }
+        return datosMozo;
+    }
+    
+    //sin editar imagen
+    public Mozo editarMozo(String id, Mozo mozoDetalles) {
         if (!mozoRepository.existsById(id)) {
             throw new RuntimeException("El mozo con el id " + id + " No existe");
         }
@@ -53,6 +67,7 @@ public class MozoService {
                 .map(mozo -> {
                     mozo.setNomMoz(mozoDetalles.getNomMoz());
                     mozo.setCorreoMoz(mozoDetalles.getCorreoMoz());
+                    mozo.setContraMoz(mozoDetalles.getContraMoz());
                     if (mozoDetalles.getImg1Moz() != null) {
                         mozo.setImg1Moz(mozoDetalles.getImg1Moz());
                         String imgBase64 = Base64.getEncoder().encodeToString(mozoDetalles.getImg1Moz());
@@ -72,6 +87,13 @@ public class MozoService {
             mozo.setImg1Moz_base64(imgBase64);
         }
         return mozoRepository.save(mozo);
+    }
+    
+    @Transactional
+    public void agregarMozo(String nom_moz, String correo_moz, String contra_moz, byte[] img1_moz, String cod_adm ) {
+        String cod_moz = mozoRepository.obtenerSiguienteCodigoMozoSumado1();
+        System.out.println("Cod_moz nuevo: " + cod_moz );
+        mozoRepository.insertarMozo(cod_moz, nom_moz, correo_moz, contra_moz, img1_moz, cod_adm);
     }
 
     public void eliminarMozo(String id) {
