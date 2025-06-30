@@ -3,6 +3,7 @@ package backend.controller;
 import backend.modelo.*;
 import backend.service.*;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/boleta")
-@CrossOrigin(origins = "http://http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200")
 public class BoletaController {
 
     @Autowired
@@ -50,4 +51,10 @@ public class BoletaController {
     public List<Map<String, Object>> BoletaDetalleComidasCodigoOr(@PathVariable String codOr) {
         return boletaService.BoletaDetalleComidasCodigoOr(codOr);
     }
+    
+    @GetMapping("/contarfecha")
+    public int obtenerTotalPorFecha(@RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        return boletaService.contarBoletasPorFecha(fecha);
+    }
+
 }

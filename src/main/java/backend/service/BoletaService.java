@@ -6,6 +6,7 @@ import backend.dao.*;
 import ch.qos.logback.core.model.Model;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -94,4 +95,9 @@ public class BoletaService {
                     return datos;
                 }).collect(Collectors.toList());
     }
+    
+    public int contarBoletasPorFecha(LocalDate fecha) {
+        return boletaRepository.contarBoletasPorFecha(fecha);
+    }
+
 }

@@ -2,6 +2,7 @@ package backend.dao;
 
 import backend.modelo.Boleta;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -91,4 +92,8 @@ public interface BoletaRepository extends JpaRepository<Boleta, Object> {
             @Param("month") Integer month,
             @Param("day") Integer day
     );
+
+    @Query(value = "SELECT COUNT(*) FROM boleta WHERE fec_bol = :fecha", nativeQuery = true)
+    int contarBoletasPorFecha(@Param("fecha") LocalDate fecha);
+
 }
