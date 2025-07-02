@@ -9,7 +9,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedido-temporal")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PedidoTemporalController {
 
     private final PedidoTemporalService pedidoService;

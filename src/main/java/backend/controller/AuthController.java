@@ -4,21 +4,24 @@
  */
 package backend.controller;
 
-import backend.dto.MozoDTO;
+import backend.jwt.Jwt;
 import backend.modelo.Administrador;
 import backend.modelo.Mozo;
+import backend.security.LoginRequest;
+import backend.security.UsuarioDetailsService;
 import backend.service.AdministradorService;
 import backend.service.MozoService;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -27,40 +30,55 @@ public class AuthController {
 
     @Autowired
     private AdministradorService administradorService;
+    
+    @Autowired
+    private UsuarioDetailsService usuarioDetailsService;
+
+    
+    @Autowired
+    private Jwt jwtUtil;
 
     @PostMapping("/login-mozo")
     public ResponseEntity<?> loginMozo(@RequestBody LoginRequest request) {
         try {
             Mozo mozo = mozoService.login(request.getCorreo(), request.getPassword());
-            return ResponseEntity.ok(new MozoDTO(mozo));
+
+            // Carga el UserDetails con los roles
+            UserDetails userDetails = usuarioDetailsService.loadUserByUsername(mozo.getCorreoMoz());
+
+            // Usa ese UserDetails para generar el token (con roles correctos)
+            String token = jwtUtil.generateToken(userDetails);
+
+            return ResponseEntity.ok(Map.of("token", token, "role", "MOZO"));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
     }
 
     @PostMapping("/login-admin")
-    public Administrador loginAdmin(@RequestBody LoginRequest request) {
-        return administradorService.login(request.getCorreo(), request.getPassword());
-    }
+    public ResponseEntity<?> loginAdmin(@RequestBody LoginRequest request) {
+        try {
+            Administrador admin = administradorService.login(request.getCorreo(), request.getPassword());
 
-    public static class LoginRequest {
-        private String correo;
-        private String password;
+            UserDetails userDetails = usuarioDetailsService.loadUserByUsername(admin.getCorreoAdm());
+            String token = jwtUtil.generateToken(userDetails);
 
-        public String getCorreo() {
-            return correo;
-        }
-
-        public void setCorreo(String correo) {
-            this.correo = correo;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
+            return ResponseEntity.ok(Map.of("token", token, "role", "ADMIN"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
     }
+@PostMapping("/logout")
+public ResponseEntity<?> logout(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("No se encontró el token");
+    }
+    String token = authHeader.substring(7);
+
+    // Aquí podrías guardar el token en una "blacklist" (lista negra) para invalidarlo.
+
+    return ResponseEntity.ok("Sesión cerrada correctamente");
+}
+
 }

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/ordenes")
-@CrossOrigin(origins = "http://localhost:4200")
 public class OrdenController {
 
     private final OrdenService ordenService;
