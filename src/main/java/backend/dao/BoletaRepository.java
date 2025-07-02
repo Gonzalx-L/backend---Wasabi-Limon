@@ -2,51 +2,51 @@ package backend.dao;
 
 import backend.modelo.Boleta;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface BoletaRepository extends JpaRepository<Boleta, Object> {
 
-    @Query("""
-    SELECT new map(
-        b.codBol as cod_bol, 
-        b.fecha as fec_bol, 
-        b.total as total_bol, 
-        o.hora as hora
+    @Query(value = "SELECT new map("
+            + "b.codBol as cod_bol, "
+            + "b.fecha as fec_bol, "
+            + "o.hora as hora, "
+            + "b.total as total_bol,"
+            +" m.codMoz as cod_moz,"
+            + "m.nomMoz as nom_moz,"
+            + "o.codOr as cod_or) "
+            + "FROM Boleta b "
+            + "JOIN b.orden o "
+            + "JOIN b.mozo m "
+            + "WHERE (:codMoz IS NULL OR m.codMoz = :codMoz) "
+            + "AND (:total1 IS NULL OR :total2 IS NULL OR b.total BETWEEN :total1 AND :total2) "
+            + "AND (:horaInicio IS NULL OR :horaFin IS NULL OR o.hora BETWEEN :horaInicio AND :horaFin) "
+            + "AND (:fechaInicio IS NULL OR :fechaFin IS NULL OR b.fecha BETWEEN :fechaInicio AND :fechaFin)",
+            countQuery = "SELECT COUNT(b) "
+            + "FROM Boleta b "
+            + "JOIN b.orden o "
+            + "JOIN b.mozo m "
+            + "WHERE (:codMoz IS NULL OR m.codMoz = :codMoz) "
+            + "AND (:total1 IS NULL OR :total2 IS NULL OR b.total BETWEEN :total1 AND :total2) "
+            + "AND (:horaInicio IS NULL OR :horaFin IS NULL OR o.hora BETWEEN :horaInicio AND :horaFin) "
+            + "AND (:fechaInicio IS NULL OR :fechaFin IS NULL OR b.fecha BETWEEN :fechaInicio AND :fechaFin)"
     )
-    FROM Boleta b
-    JOIN b.orden o
-    """)
-    List<Map<String, Object>> findBoletas();
-
-    @Query("""
-    SELECT new map(
-        b.codBol as cod_bol,
-        b.fecha as fec_bol,
-        o.hora as hora, 
-        b.total as total_bol, 
-        m.codMoz as cod_moz
-    )
-    FROM Boleta b
-    JOIN b.orden o
-    JOIN b.mozo m
-    WHERE (:codMoz IS NULL OR m.codMoz = :codMoz)
-    AND (:total1 IS NULL OR :total2 IS NULL OR b.total BETWEEN :total1 AND :total2)
-    AND (:horaInicio IS NULL OR :horaFin IS NULL OR o.hora BETWEEN :horaInicio AND :horaFin)
-    AND (:fechaInicio IS NULL OR :fechaFin IS NULL OR b.fecha BETWEEN :fechaInicio AND :fechaFin)
-    """)
-    List<Map<String, Object>> findBoletasFiltradas(
+    Page<Map<String, Object>> findBoletasConFiltros(
             @Param("codMoz") String codMoz,
             @Param("total1") Float total1,
             @Param("total2") Float total2,
             @Param("horaInicio") Time horaInicio,
             @Param("horaFin") Time horaFin,
             @Param("fechaInicio") Date fechaInicio,
-            @Param("fechaFin") Date fechaFin
+            @Param("fechaFin") Date fechaFin,
+            Pageable pageable
     );
 
     @Query("""
@@ -91,4 +91,8 @@ public interface BoletaRepository extends JpaRepository<Boleta, Object> {
             @Param("month") Integer month,
             @Param("day") Integer day
     );
+
+    @Query(value = "SELECT COUNT(*) FROM boleta WHERE fec_bol = :fecha", nativeQuery = true)
+    int contarBoletasPorFecha(@Param("fecha") LocalDate fecha);
+
 }
