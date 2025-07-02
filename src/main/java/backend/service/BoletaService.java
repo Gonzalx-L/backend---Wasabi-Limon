@@ -3,6 +3,7 @@ package backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import backend.dao.*;
+import backend.modelo.Boleta;
 import ch.qos.logback.core.model.Model;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,10 @@ public class BoletaService {
     }
 
     public List<Map<String, Object>> BoletaDetallePorCodigo(String codBol) {
+        
+        this.boletaRepository.findById(codBol)
+                .orElseThrow(() -> new RuntimeException("El codigo: " + codBol + " no existe."));
+        
         return boletaRepository.BoletaDetallePorCodigo(codBol).stream()
                 .map(boleta -> {
                     Map<String, Object> datos = new LinkedHashMap<>();

@@ -4,6 +4,7 @@ import backend.modelo.*;
 import backend.service.*;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/boleta")
@@ -27,7 +30,6 @@ public class BoletaController {
     private BoletaService boletaService;
 
     //http://localhost:8080/api/boleta/filtrar?codMoz=0003&horaInicio=10:00:00&horaFin=20:00:00&total1=50&total2=180&fechaInicio=2025-05-20&fechaFin=2025-05-21
-    
     @GetMapping("/listar")
     public Page<Map<String, Object>> listarBoletasConFiltros(
             @RequestParam(required = false) String codMoz,
@@ -45,8 +47,15 @@ public class BoletaController {
     }
 
     @GetMapping("/detallebol/{codBol}")
-    public List<Map<String, Object>> BoletaDetallePorCodigo(@PathVariable String codBol) {
-        return boletaService.BoletaDetallePorCodigo(codBol);
+    public ResponseEntity<?> BoletaDetallePorCodigo(@PathVariable String codBol) {
+        try {
+            List<Map<String, Object>> resultado = boletaService.BoletaDetallePorCodigo(codBol);
+            return ResponseEntity.ok(resultado);
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
     }
 
     @GetMapping("/detallecom/{codOr}")
