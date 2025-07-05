@@ -1,9 +1,11 @@
 package backend.dao;
 
 import backend.modelo.Mozo;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,5 +29,26 @@ public interface MozoRepository extends JpaRepository<Mozo, String> {
             @Param("year") Integer year,
             @Param("month") Integer month,
             @Param("day") Integer day
+    );
+    
+    @Query(value = """
+        SELECT LPAD(CAST(MAX(CAST(cod_moz AS UNSIGNED)) + 1 AS CHAR), 4, '0') 
+        FROM mozo
+        """, nativeQuery = true)
+    String obtenerSiguienteCodigoMozoSumado1();
+    
+    @Modifying
+    @Transactional
+    @Query(value = """
+        INSERT INTO mozo (cod_moz, nom_moz, correo_moz, contra_moz, img1_moz, cod_adm)
+        VALUES (:cod_moz, :nom_moz, :correo_moz, :contra_moz, :img1_moz, :cod_adm)
+        """, nativeQuery = true)
+    public void insertarMozo(
+            @Param("cod_moz") String cod_moz,
+            @Param("nom_moz") String nom_moz,
+            @Param("correo_moz") String correo_moz,
+            @Param("contra_moz") String contra_moz,
+            @Param("img1_moz") byte[] img1_moz,
+            @Param("cod_adm") String cod_adm
     );
 }

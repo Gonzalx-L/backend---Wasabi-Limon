@@ -25,6 +25,11 @@ public class Comida {
     @OneToMany(mappedBy = "comida")
     private List<DetalleOrden> detalles;
 
-    @ManyToMany(mappedBy = "comidas")
+    @ManyToMany
+    @JoinTable(
+            name = "categoria_comida",
+            joinColumns = @JoinColumn(name = "cod_com"),
+            inverseJoinColumns = @JoinColumn(name = "cod_cat")
+    )
     private List<Categoria> categorias;
 }

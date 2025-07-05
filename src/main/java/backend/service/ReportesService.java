@@ -35,7 +35,7 @@ public class ReportesService {
 
     public List<Map<String, Object>> obtenerComidaReporte(Integer year, Integer month, Integer day) {
         return comidaRepository.ComidaReporte(year, month, day).stream()
-                .limit(10) 
+                .limit(5) 
                 .collect(Collectors.toList());
     }
     

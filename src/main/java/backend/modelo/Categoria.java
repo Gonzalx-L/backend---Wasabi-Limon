@@ -17,14 +17,6 @@ public class Categoria {
     @Column(length = 50)
     private String nom_cat;
 
-    @ManyToMany
-    @JoinTable(
-            name = "categoria_comida",
-            joinColumns = @JoinColumn(name = "cod_cat"),
-            inverseJoinColumns = @JoinColumn(name = "cod_com")
-    )
+    @ManyToMany(mappedBy = "categorias")
     private List<Comida> comidas;
-
-
-
 }
