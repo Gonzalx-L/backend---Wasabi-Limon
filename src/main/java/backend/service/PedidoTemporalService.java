@@ -12,9 +12,11 @@ public class PedidoTemporalService {
 
     private final Map<String, Integer> pedidoTemporal = new HashMap<>();
     private final ComidaRepository comidaRepository;
+    private EstadoMesaService estadoMesaService;
 
-    public PedidoTemporalService(ComidaRepository comidaRepository) {
+    public PedidoTemporalService(ComidaRepository comidaRepository, EstadoMesaService estadoMesaService) {
         this.comidaRepository = comidaRepository;
+        this.estadoMesaService = estadoMesaService;
     }
 
     public void agregarPlato(String codCom) {
@@ -67,4 +69,11 @@ public class PedidoTemporalService {
     public void limpiarPedido() {
         pedidoTemporal.clear();
     }
+    public Map<String, Integer> obtenerPedidoCrudoPorMesa(int numeroMesa) {
+    return estadoMesaService.obtenerMesa(numeroMesa).getPedidoTemporal();
+}
+
+public void limpiarPedidoPorMesa(int numeroMesa) {
+    estadoMesaService.limpiarPedido(numeroMesa);
+}
 }
