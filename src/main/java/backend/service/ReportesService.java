@@ -39,6 +39,10 @@ public class ReportesService {
                 .collect(Collectors.toList());
     }
     
+    public List<Map<String, Object>> reporteMensualPorComida(String codCom, Integer year) {
+        return comidaRepository.reporteMensualPorComida(codCom, year);
+    }
+    
     public List<Map<String, Object>> ObtenerIngresosReporteFiltro(Integer year, Integer month, Integer day) {
         return boletaRepository.ObtenerIngresosReporteFiltro(year, month, day);
     }
