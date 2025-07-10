@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/boleta")
-@CrossOrigin(origins = "http://localhost:4200")
 public class BoletaController {
 
     @Autowired

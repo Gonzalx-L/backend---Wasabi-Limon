@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/admi")
-@CrossOrigin(origins = "http://http://localhost:4200")
 public class AdministradorController {
     
     @Autowired

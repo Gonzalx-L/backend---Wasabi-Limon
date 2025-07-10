@@ -26,4 +26,11 @@ public class AdministradorService {
             return mozo;
         }).collect(Collectors.toList());
     }
+    
+        public Administrador login(String correo, String password) {
+        return administradorRepository.findAll().stream()
+            .filter(a -> a.getCorreoAdm().equalsIgnoreCase(correo) && a.getContraAdm().equals(password))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Credenciales inválidas para administrador"));
+    }
 }

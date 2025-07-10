@@ -11,7 +11,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/mesas")
-@CrossOrigin(origins = "http://localhost:4200")
 public class MesaController {
 
     private final EstadoMesaService estadoMesaService;
