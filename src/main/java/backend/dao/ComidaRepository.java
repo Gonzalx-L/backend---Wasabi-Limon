@@ -14,7 +14,7 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
     @Query("""
     SELECT new map(
         c.nomCom as nom_com, 
-        COUNT(do.id.codCom) as cantidad_pedida
+        SUM(do.cantidad) as cantidad_pedida
     )
     FROM Comida c
     JOIN c.detalles do
@@ -30,6 +30,26 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
             @Param("year") Integer year,
             @Param("month") Integer month,
             @Param("day") Integer day
+    );
+
+    @Query("""
+    SELECT new map(
+        c.nomCom as nomCom,
+        MONTH(b.fecha) as mes,
+        SUM(do.cantidad) as cantidad_pedida
+    )
+    FROM Comida c
+    JOIN c.detalles do
+    JOIN do.orden o
+    JOIN o.boletas b
+    WHERE (:year IS NULL OR YEAR(b.fecha) = :year)
+    AND c.codCom = :codCom
+    GROUP BY MONTH(b.fecha)
+    ORDER BY mes
+    """)
+    List<Map<String, Object>> reporteMensualPorComida(
+            @Param("codCom") String codCom,
+            @Param("year") Integer year
     );
 
     @Query(value = """
