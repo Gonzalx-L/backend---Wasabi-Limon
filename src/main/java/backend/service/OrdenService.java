@@ -35,52 +35,43 @@ public class OrdenService {
         this.mozoRepository = mozoRepository;
     }
 
-    public void confirmarPedido() {
-        // 1. Obtener los platos del pedido temporal
-        Map<String, Integer> pedido = pedidoTemporalService.obtenerPedidoCrudo();
-        if (pedido.isEmpty()) return;
+public void confirmarPedido(int numeroMesa, String codMozo) {
+    Map<String, Integer> pedido = pedidoTemporalService.obtenerPedidoCrudoPorMesa(numeroMesa);
+    if (pedido.isEmpty()) return;
 
-        // 2. Crear orden
-        Orden orden = new Orden();
-        String codOr = UUID.randomUUID().toString().substring(0, 10); // código aleatorio
-        orden.setCodOr(codOr);
-        orden.setMesa(1); // puedes ajustar esto dinámicamente
-        orden.setHora(Time.valueOf(LocalTime.now()));
+    Orden orden = new Orden();
+    String codOr = UUID.randomUUID().toString().substring(0, 10);
+    orden.setCodOr(codOr);
+    orden.setMesa(numeroMesa);
+    orden.setHora(Time.valueOf(LocalTime.now()));
 
-        // 3. Asociar mozo "0001"
-        Mozo mozo = mozoRepository.findById("0001").orElse(null);
-        orden.setMozo(mozo);
-        orden.setCodMoz("0001");
+    Mozo mozo = mozoRepository.findById(codMozo).orElse(null);
+    orden.setMozo(mozo);
+    orden.setCodMoz(codMozo);
 
-        // 4. Crear detalles
-        List<DetalleOrden> detalles = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : pedido.entrySet()) {
-            String codCom = entry.getKey();
-            int cantidad = entry.getValue();
+    List<DetalleOrden> detalles = new ArrayList<>();
+    for (Map.Entry<String, Integer> entry : pedido.entrySet()) {
+        String codCom = entry.getKey();
+        int cantidad = entry.getValue();
 
-            Comida comida = comidaRepository.findById(codCom).orElse(null);
-            if (comida != null) {
-                DetalleOrden detalle = new DetalleOrden();
-
-                // Establecer clave compuesta correctamente
-                DetalleOrdenPK pk = new DetalleOrdenPK(codCom, codOr);
-                detalle.setId(pk);
-
-                detalle.setOrden(orden);
-                detalle.setComida(comida);
-                detalle.setCantidad(cantidad);
-                detalles.add(detalle);
-            }
+        Comida comida = comidaRepository.findById(codCom).orElse(null);
+        if (comida != null) {
+            DetalleOrden detalle = new DetalleOrden();
+            DetalleOrdenPK pk = new DetalleOrdenPK(codCom, codOr);
+            detalle.setId(pk);
+            detalle.setOrden(orden);
+            detalle.setComida(comida);
+            detalle.setCantidad(cantidad);
+            detalles.add(detalle);
         }
-
-        orden.setDetalles(detalles);
-
-        // 5. Guardar orden y detalles (
-        ordenRepository.save(orden);
-
-        // 6. Limpiar pedido temporal
-        pedidoTemporalService.limpiarPedido();
     }
+
+    orden.setDetalles(detalles);
+    ordenRepository.save(orden);
+
+    // Limpiar solo el pedido de esa mesa
+    pedidoTemporalService.limpiarPedidoPorMesa(numeroMesa);
+}
 
     public List<OrdenResumenDTO> listarOrdenesPorMozo(String codMoz) {
         List<Orden> ordenes = ordenRepository.findByCodMoz(codMoz);

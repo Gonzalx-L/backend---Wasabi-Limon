@@ -31,5 +31,8 @@ public class Orden {
 
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
     private List<Boleta> boletas;
+    
+    @Column(name = "estado")
+    private String estado;
 
 }

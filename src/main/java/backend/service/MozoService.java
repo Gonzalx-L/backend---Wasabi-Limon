@@ -102,5 +102,12 @@ public class MozoService {
         }
         mozoRepository.deleteById(id);
     }
+    
+        public Mozo login(String correo, String password) {
+        return mozoRepository.findAll().stream()
+            .filter(m -> m.getCorreoMoz().equalsIgnoreCase(correo) && m.getContraMoz().equals(password))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Credenciales inválidas para mozo"));
+    }
 
 }
