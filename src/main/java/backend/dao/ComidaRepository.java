@@ -14,7 +14,7 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
     @Query("""
     SELECT new map(
         c.nomCom as nom_com, 
-        COUNT(do.id.codCom) as cantidad_pedida
+        SUM(do.cantidad) as cantidad_pedida
     )
     FROM Comida c
     JOIN c.detalles do
@@ -36,7 +36,7 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
     SELECT new map(
         c.nomCom as nomCom,
         MONTH(b.fecha) as mes,
-        COUNT(do.id.codCom) as cantidad_pedida
+        SUM(do.cantidad) as cantidad_pedida
     )
     FROM Comida c
     JOIN c.detalles do
