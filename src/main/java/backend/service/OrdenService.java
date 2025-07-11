@@ -2,6 +2,7 @@ package backend.service;
 
 import backend.dao.*;
 import backend.dto.OrdenResumenDTO;
+import backend.dto.ResumenPedidoDTO;
 import backend.modelo.Comida;
 import backend.modelo.DetalleOrden;
 import backend.modelo.DetalleOrden.DetalleOrdenPK;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -22,17 +24,20 @@ public class OrdenService {
     private final DetalleOrdenRepository detalleOrdenRepository;
     private final ComidaRepository comidaRepository;
     private final MozoRepository mozoRepository;
+    private final BoletaRepository boletaRepository;
 
     public OrdenService(PedidoTemporalService pedidoTemporalService,
                         OrdenRepository ordenRepository,
                         DetalleOrdenRepository detalleOrdenRepository,
                         ComidaRepository comidaRepository,
-                        MozoRepository mozoRepository) {
+                        MozoRepository mozoRepository, 
+                        BoletaRepository boletaRepository) {
         this.pedidoTemporalService = pedidoTemporalService;
         this.ordenRepository = ordenRepository;
         this.comidaRepository = comidaRepository;
         this.detalleOrdenRepository = detalleOrdenRepository;
         this.mozoRepository = mozoRepository;
+        this.boletaRepository = boletaRepository;
     }
 
 public void confirmarPedido(int numeroMesa, String codMozo) {
@@ -44,6 +49,7 @@ public void confirmarPedido(int numeroMesa, String codMozo) {
     orden.setCodOr(codOr);
     orden.setMesa(numeroMesa);
     orden.setHora(Time.valueOf(LocalTime.now()));
+    orden.setEstado("PENDIENTE");
 
     Mozo mozo = mozoRepository.findById(codMozo).orElse(null);
     orden.setMozo(mozo);
@@ -108,6 +114,92 @@ public void confirmarPedido(int numeroMesa, String codMozo) {
 
         return resumenes;
     }
+    
+    public List<OrdenResumenDTO> listarOrdenesPorMozoYEstado(String codMoz, String estado) {
+    List<Orden> ordenes = ordenRepository.findByCodMozAndEstado(codMoz, estado);
+    List<OrdenResumenDTO> resumenes = new ArrayList<>();
 
+    for (Orden orden : ordenes) {
+        List<OrdenResumenDTO.DetalleDTO> detalles = new ArrayList<>();
+        float total = 0;
 
+        for (DetalleOrden det : orden.getDetalles()) {
+            Comida comida = det.getComida();
+            float precio = comida.getPrecNom();
+            int cantidad = det.getCantidad();
+            float subtotal = precio * cantidad;
+            total += subtotal;
+
+            detalles.add(new OrdenResumenDTO.DetalleDTO(
+                    comida.getCodCom(),
+                    comida.getNomCom(),
+                    precio,
+                    cantidad,
+                    subtotal
+            ));
+        }
+
+        resumenes.add(new OrdenResumenDTO(
+                orden.getCodOr(),
+                orden.getMesa(),
+                orden.getHora().toString(),
+                total,
+                detalles
+        ));
+    }
+
+    return resumenes;
+}
+
+    public void editarOrden(String codOr, List<ResumenPedidoDTO> nuevosDetalles) {
+        Orden orden = ordenRepository.findById(codOr)
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada."));
+
+        if (!orden.getEstado().equals("PENDIENTE")) {
+            throw new RuntimeException("No se puede editar esta orden.");
+        }
+
+        // Eliminar detalles actuales
+        detalleOrdenRepository.deleteAll(orden.getDetalles());
+        orden.getDetalles().clear();
+
+        // Agregar nuevos detalles
+        List<DetalleOrden> nuevos = nuevosDetalles.stream().map(dto -> {
+            DetalleOrdenPK pk = new DetalleOrdenPK(dto.getCodCom(), codOr);
+
+            DetalleOrden det = new DetalleOrden();
+            det.setId(pk);
+            det.setCantidad(dto.getCantidad());
+            det.setOrden(orden);
+            det.setComida(comidaRepository.findById(dto.getCodCom())
+                .orElseThrow(() -> new RuntimeException("Comida no encontrada: " + dto.getCodCom())));
+
+            return det;
+        }).collect(Collectors.toList());
+        orden.setDetalles(nuevos);
+        ordenRepository.save(orden);
+        }
+
+    
+    public void marcarComoPagado(String codOr) {
+        Orden orden = ordenRepository.findById(codOr).orElseThrow();
+        orden.setEstado("PAGADO");
+        ordenRepository.save(orden);
+    }
+
+    public void anularOrden(String codOr) {
+        Orden orden = ordenRepository.findById(codOr).orElseThrow();
+        orden.setEstado("ANULADO");
+        ordenRepository.save(orden);
+    }
+    
+    public float calcularTotalOrden(Orden orden) {
+        float total = 0;
+        for (DetalleOrden det : orden.getDetalles()) {
+            float precio = det.getComida().getPrecNom();
+            int cantidad = det.getCantidad();
+            total += precio * cantidad;
+        }
+        return total;
+    }
 }

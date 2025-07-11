@@ -39,18 +39,18 @@ public class Boleta {
     private String correoCli;
 
     @ManyToOne
-    @JoinColumn(name = "cod_moz", insertable = false, updatable = false)
+    @JoinColumn(name = "cod_moz")
     private Mozo mozo;
 
     @ManyToOne
-    @JoinColumn(name = "cod_or", insertable = false, updatable = false)
+    @JoinColumn(name = "cod_or")
     private Orden orden;
 
     @ManyToOne
-    @JoinColumn(name = "comprobante", insertable = false, updatable = false)
+    @JoinColumn(name = "comprobante")
     private Comprobante coboleta;
 
     @ManyToOne
-    @JoinColumn(name = "tipopago", insertable = false, updatable = false)
+    @JoinColumn(name = "tipopago")
     private TipoPago tipboleta;
 }
