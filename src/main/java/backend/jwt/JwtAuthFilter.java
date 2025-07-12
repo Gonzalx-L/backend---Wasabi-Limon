@@ -89,6 +89,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     System.out.println("Usuario autenticado exitosamente en SecurityContext");
                 } else {
                     System.out.println("Token JWT inválido");
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido o expirado");
+                    return;
                 }
             } catch (Exception e) {
                 System.out.println("Error en autenticación JWT: " + e.getMessage());

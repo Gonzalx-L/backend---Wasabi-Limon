@@ -92,4 +92,11 @@ public class MesaController {
         }
         return resumen;
     }
+    
+    // 9. Verificar si el mozo tiene mesas ATENDIDAS
+    @GetMapping("/mozo/{codMozo}/tiene-atendidas")
+    public boolean mozoTieneMesasAtendidas(@PathVariable String codMozo) {
+        return estadoMesaService.tieneMesasAtendidasPorMozo(codMozo);
+    }
+
 }
