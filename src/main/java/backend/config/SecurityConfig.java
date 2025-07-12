@@ -51,15 +51,19 @@ private JwtAuthFilter jwtAuthFilter;
                     //solo ADMIN  
                 .requestMatchers("/api/admi/**").hasAnyAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/reportes/**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/boleta/**").hasAnyAuthority("ROLE_ADMIN")
                     //acceso para mozo y admin
-                .requestMatchers("/api/boleta/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/mozo/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/pedido-temporal/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/ordenes/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/categorias/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
+                .requestMatchers("/api/tipCompro/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/comida/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/mesas/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
+                .requestMatchers("/api/tipopago/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
+                .requestMatchers("/api/comprobante/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
 
+                    
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

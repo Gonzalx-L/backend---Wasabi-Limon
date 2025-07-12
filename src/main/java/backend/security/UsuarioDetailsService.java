@@ -28,12 +28,12 @@ public class UsuarioDetailsService implements UserDetailsService {
 
         if (mozo.isPresent()) {
             return new UsuarioSecurity(
-                mozo.get().getCorreoMoz(),
-                mozo.get().getContraMoz(),
-                "MOZO"
+                    mozo.get().getCorreoMoz(),
+                    mozo.get().getContraMoz(),
+                    "MOZO"
             );
         }
-System.out.println("Intentando autenticar: " + correo);
+        System.out.println("Intentando autenticar: " + correo);
 
         Optional<Administrador> admin = adminRepo.findAll().stream()
                 .filter(a -> a.getCorreoAdm().equalsIgnoreCase(correo))
@@ -41,13 +41,12 @@ System.out.println("Intentando autenticar: " + correo);
 
         if (admin.isPresent()) {
             return new UsuarioSecurity(
-                admin.get().getCorreoAdm(),
-                admin.get().getContraAdm(),
-                "ADMIN"
+                    admin.get().getCorreoAdm(),
+                    admin.get().getContraAdm(),
+                    "ADMIN"
             );
         }
 
         throw new UsernameNotFoundException("Usuario no encontrado");
     }
 }
-

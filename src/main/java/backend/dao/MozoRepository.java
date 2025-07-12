@@ -4,6 +4,8 @@ import backend.modelo.Mozo;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,13 +32,13 @@ public interface MozoRepository extends JpaRepository<Mozo, String> {
             @Param("month") Integer month,
             @Param("day") Integer day
     );
-    
+
     @Query(value = """
         SELECT LPAD(CAST(MAX(CAST(cod_moz AS UNSIGNED)) + 1 AS CHAR), 4, '0') 
         FROM mozo
         """, nativeQuery = true)
     String obtenerSiguienteCodigoMozoSumado1();
-    
+
     @Modifying
     @Transactional
     @Query(value = """
@@ -50,5 +52,21 @@ public interface MozoRepository extends JpaRepository<Mozo, String> {
             @Param("contra_moz") String contra_moz,
             @Param("img1_moz") byte[] img1_moz,
             @Param("cod_adm") String cod_adm
+    );
+
+    @Query(value = "SELECT new map( "
+            + "m.codMoz as cod_moz, "
+            + "m.nomMoz as nom_moz, "
+            + "m.correoMoz as correo_moz, "
+            + "m.img1Moz as img1_moz "
+            + ") "
+            + "FROM Mozo m "
+            + "WHERE (:nomMoz IS NULL OR LOWER(m.nomMoz) LIKE LOWER(CONCAT('%', :nomMoz, '%')))",
+            countQuery = "SELECT COUNT(m) FROM Mozo m "
+            + "WHERE (:nomMoz IS NULL OR LOWER(m.nomMoz) LIKE LOWER(CONCAT('%', :nomMoz, '%')))"
+    )
+    Page<Map<String, Object>> findMozosConFiltro(
+            @Param("nomMoz") String nomMoz,
+            Pageable pageable
     );
 }

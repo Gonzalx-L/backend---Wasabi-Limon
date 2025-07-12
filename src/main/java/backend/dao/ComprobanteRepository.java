@@ -27,4 +27,22 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, Object
             @Param("month") Integer month,
             @Param("day") Integer day
     );
+    
+    @Query("""
+    SELECT new map(
+        c.nomCompro as nomCompro,
+        MONTH(b.fecha) as mes,
+        COUNT(b.coboleta) as cantidad_pedida
+    )
+    FROM Boleta b
+    JOIN b.coboleta c
+    WHERE (:year IS NULL OR YEAR(b.fecha) = :year)
+    AND c.codCompro = :codCompro
+    GROUP BY MONTH(b.fecha)
+    ORDER BY mes
+    """)
+    List<Map<String, Object>> reporteMensualPorComprobante(
+            @Param("codCompro") String codCom,
+            @Param("year") Integer year
+    );
 }

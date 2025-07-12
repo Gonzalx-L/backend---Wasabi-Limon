@@ -1,15 +1,23 @@
 package backend.dao;
 
+import backend.dto.ComidaCategoriaDTO;
 import backend.modelo.Comida;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ComidaRepository extends JpaRepository<Comida, String> {
+
+    @Query("SELECT c.codCom, c.nomCom "
+            + "FROM Comida c "
+            + "WHERE LOWER(c.nomCom) LIKE LOWER(CONCAT('%', :term, '%'))")
+    List<Object[]> buscarPorNombre(@Param("term") String term);
 
     @Query("""
     SELECT new map(
@@ -26,7 +34,28 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
     GROUP BY c.nomCom
     ORDER BY cantidad_pedida DESC
     """)
-    List<Map<String, Object>> ComidaReporte(
+    List<Map<String, Object>> ComidaReporteMayor(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("day") Integer day
+    );
+
+    @Query("""
+    SELECT new map(
+        c.nomCom as nom_com, 
+        SUM(do.cantidad) as cantidad_pedida
+    )
+    FROM Comida c
+    JOIN c.detalles do
+    JOIN do.orden o
+    JOIN o.boletas b
+    WHERE (:year IS NULL OR YEAR(b.fecha) = :year)
+    AND (:month IS NULL OR MONTH(b.fecha) = :month)
+    AND (:day IS NULL OR DAY(b.fecha) = :day)
+    GROUP BY c.nomCom
+    ORDER BY cantidad_pedida ASC
+    """)
+    List<Map<String, Object>> ComidaReporteMenor(
             @Param("year") Integer year,
             @Param("month") Integer month,
             @Param("day") Integer day
@@ -80,6 +109,20 @@ public interface ComidaRepository extends JpaRepository<Comida, String> {
     public void insertarCatCom(
             @Param("cod_cat") String cod_cat,
             @Param("cod_com") String cod_com
+    );
+
+    @Query(
+            value = "SELECT new backend.dto.ComidaCategoriaDTO( "
+            + "c.codCom, c.nomCom, c.precNom, c.descCom, ct.cod_cat, ct.nom_cat) "
+            + "FROM Comida c "
+            + "JOIN c.categorias ct "
+            + "WHERE (:nomCom IS NULL OR LOWER(c.nomCom) LIKE LOWER(CONCAT('%', :nomCom, '%')))",
+            countQuery = "SELECT COUNT(c) FROM Comida c "
+            + "WHERE (:nomCom IS NULL OR LOWER(c.nomCom) LIKE LOWER(CONCAT('%', :nomCom, '%')))"
+    )
+    Page<ComidaCategoriaDTO> findComidaConFiltro(
+            @Param("nomCom") String nomCom,
+            Pageable pageable
     );
 
 }

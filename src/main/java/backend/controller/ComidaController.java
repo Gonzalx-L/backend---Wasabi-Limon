@@ -1,11 +1,15 @@
 package backend.controller;
 
+import backend.dto.ComidaCategoriaDTO;
 import backend.modelo.Comida;
 import backend.service.ComidaService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,6 +30,11 @@ public class ComidaController {
     @Autowired
     private ComidaService comidaService;
 
+    @GetMapping("/buscar")
+    public List<Map<String, Object>> buscar(@RequestParam String term) {
+        return comidaService.buscarPorNombre(term);
+    }
+
     @PostMapping("/agregar")
     public ResponseEntity<Map<String, String>> agregarComida(@RequestBody Map<String, Object> body) {
         Map<String, String> response = new HashMap<>();
@@ -45,15 +54,10 @@ public class ComidaController {
         }
     }
 
-    @GetMapping("/listar")
-    public List<Map<String, Object>> findComida() {
-        return comidaService.findComida();
-    }
-
     @GetMapping("/listar/{id}")
     public ResponseEntity<?> obtenerComidaPorId(@PathVariable String id) {
         try {
-            Map<String, Object> datosComida = comidaService.findById(id); 
+            Map<String, Object> datosComida = comidaService.findById(id);
             return ResponseEntity.ok(datosComida);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
@@ -62,6 +66,16 @@ public class ComidaController {
         }
     }
 
+    @GetMapping("/listarpage")
+    public Page<ComidaCategoriaDTO> listarComida(
+            @RequestParam(required = false) String nomCom,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return comidaService.obtenerComidaConFiltro(nomCom, pageable);
+    }
+    
     @PutMapping("/editar/{id}")
     public ResponseEntity<Map<String, String>> actualizarComida(
             @PathVariable String id,

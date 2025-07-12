@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 import backend.dao.CategoriaRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class CategoriaService {
@@ -38,4 +41,16 @@ public class CategoriaService {
                 .collect(Collectors.toList());
     }
 
+    public List<Map<String, Object>> buscarPorNombre(String term) {
+        List<Object[]> filas = categoriaRepository.buscarPorNombre(term);
+        List<Map<String, Object>> lista = new ArrayList<>();
+        for (Object[] f : filas) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("cod_cat", f[0]);
+            map.put("nom_cat", f[1]);
+            lista.add(map);
+        }
+        return lista;
+    }
+    
 }
