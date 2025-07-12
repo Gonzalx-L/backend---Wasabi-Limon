@@ -54,6 +54,10 @@ public class EstadoMesaService {
         }
     }
 
+    public boolean tieneMesasAtendidasPorMozo(String codMozo) {
+        return mesas.values().stream()
+                .anyMatch(m -> "ATENDIDA".equals(m.getEstado()) && codMozo.equals(m.getCodMozo()));
+    }
     public void limpiarPedido(int numero) {
         mesas.get(numero).getPedidoTemporal().clear();
     }

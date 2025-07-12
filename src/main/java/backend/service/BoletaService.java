@@ -3,8 +3,11 @@ package backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import backend.dao.*;
+import backend.dto.BoletaDTO;
 import backend.modelo.Boleta;
-import ch.qos.logback.core.model.Model;
+import backend.modelo.Comprobante;
+import backend.modelo.Orden;
+import backend.modelo.TipoPago;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -21,6 +24,18 @@ public class BoletaService {
 
     @Autowired
     private BoletaRepository boletaRepository;
+    
+    @Autowired
+    private TipopagoRepository tipopagoRepository;
+    
+    @Autowired
+    private ComprobanteRepository comprobanteRepository;
+    
+    @Autowired
+    private OrdenRepository ordenRepository;
+    
+    @Autowired
+    private OrdenService ordenService;
 
     public Page<Map<String, Object>> findBoletasConFiltros(
             String codMoz,
@@ -91,6 +106,49 @@ public class BoletaService {
 
     public int contarBoletasPorFecha(LocalDate fecha) {
         return boletaRepository.contarBoletasPorFecha(fecha);
+    }
+    
+    public void generarBoleta(BoletaDTO dto) {
+        // Obtener la orden asociada
+        Orden orden = ordenRepository.findById(dto.getCodOr())
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+        // Por ejemplo: Año + código incremental aleatorio
+        String nuevoCodBol = "25" + (int)(Math.random() * 1_000_000_000);  // puedes mejorarlo si deseas
+
+        // Calcular total de la orden
+        float totalOrden = ordenService.calcularTotalOrden(orden);
+
+        // Crear y llenar la boleta
+        Boleta boleta = new Boleta();
+        boleta.setMozo(orden.getMozo());
+        boleta.setCodBol(nuevoCodBol);
+        boleta.setFecha(new Date());
+        boleta.setPropina(dto.getPropina() != null ? dto.getPropina() : 0f);
+        boleta.setTotal(totalOrden + boleta.getPropina());
+
+        boleta.setNomCli(dto.getNomCli());
+        boleta.setDniCli(dto.getDniCli());
+        boleta.setRucCli(dto.getRucCli());
+        boleta.setNumCli(dto.getNumCli());
+        boleta.setCorreoCli(dto.getCorreoCli());
+
+        boleta.setOrden(orden);
+
+        TipoPago tipoPago = tipopagoRepository.findById(dto.getTipoPago().toString())
+            .orElseThrow(() -> new RuntimeException("Tipo de pago no válido"));
+        boleta.setTipboleta(tipoPago);
+        
+        Comprobante comprobante = comprobanteRepository.findById(dto.getTipoPago().toString())
+            .orElseThrow(() -> new RuntimeException("Comprobante no válido"));
+        boleta.setCoboleta(comprobante);
+
+        // Guardar boleta
+        boletaRepository.save(boleta);
+
+        // Cambiar estado de la orden a "PAGADO"
+        orden.setEstado("PAGADO");
+        ordenRepository.save(orden);
     }
 
 }
