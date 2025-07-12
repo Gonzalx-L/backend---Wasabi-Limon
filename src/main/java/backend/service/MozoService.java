@@ -109,5 +109,11 @@ public class MozoService {
             .findFirst()
             .orElseThrow(() -> new RuntimeException("Credenciales inválidas para mozo"));
     }
+    public List<Map<String, Object>> ObtenerPropinaReporteFiltro(
+            String codMoz, Integer year, Integer month, Integer day
+    ) {
+        return mozoRepository.ObtenerPropinaReporteFiltro(codMoz, year, month, day);
+    }
+
 
 }

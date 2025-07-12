@@ -90,5 +90,15 @@ public class MozoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
-    
+    @GetMapping("/propinas")
+    public List<Map<String, Object>> obtenerPropinasPorMozo(
+            @RequestParam(required = false) String codMoz,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer day
+    ) {
+        return mozoService.ObtenerPropinaReporteFiltro(codMoz, year, month, day);
+    }
+
+
 }
