@@ -9,6 +9,9 @@ import backend.service.MozoService;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,6 +30,16 @@ public class MozoController {
     public ResponseEntity<List<Map<String, Object>>> listarMozos() {
         List<Map<String, Object>> mozos = mozoService.findMozos();
         return ResponseEntity.ok(mozos);
+    }
+    
+    @GetMapping("/listarpage")
+    public Page<Map<String, Object>> listarMozos(
+            @RequestParam(required = false) String nomMoz,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return mozoService.obtenerMozosConFiltro(nomMoz, pageable);
     }
     
     @GetMapping("/listar/{id}")
@@ -62,13 +75,11 @@ public class MozoController {
             String correoMoz = (String) body.get("correoMoz");
             String contraMoz = (String) body.get("contraMoz");
             String imgBase64 = (String) body.get("img1Moz"); // <-- base64 desde el frontend
-            String codAdm = (String) body.get("cod_adm");            
-            
+            String codAdm = (String) body.get("cod_adm");                  
             byte[] imgBytes = null;
             if (imgBase64 != null && !imgBase64.isEmpty()) {
                 imgBytes = Base64.getDecoder().decode(imgBase64);
-            }
-            
+            } 
             mozoService.agregarMozo(nomMoz, correoMoz, contraMoz, imgBytes, codAdm);
             response.put("mensaje", "Mozo agregado correctamente");
             return ResponseEntity.status(HttpStatus.OK).body(response);

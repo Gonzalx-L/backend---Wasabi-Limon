@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Access(AccessType.FIELD)
 @Table(name = "categoria")
 public class Categoria {
 

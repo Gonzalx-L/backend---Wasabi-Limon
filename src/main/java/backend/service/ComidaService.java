@@ -1,14 +1,19 @@
 package backend.service;
 
 import backend.dao.*;
+import backend.dto.ComidaCategoriaDTO;
 import java.util.List;
 import backend.modelo.*;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +24,18 @@ public class ComidaService {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+
+    public List<Map<String, Object>> buscarPorNombre(String term) {
+        List<Object[]> filas = comidaRepository.buscarPorNombre(term);
+        List<Map<String, Object>> lista = new ArrayList<>();
+        for (Object[] f : filas) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("codCom", f[0]);
+            map.put("nomCom", f[1]);
+            lista.add(map);
+        }
+        return lista;
+    }
 
     @Transactional
     public void agregarComida(String nom_com, float prec_nom, String desc_com, String cod_cat) {
@@ -98,6 +115,10 @@ public class ComidaService {
             throw new RuntimeException("La comida con el ID " + id + " no existe");
         }
         comidaRepository.deleteById(id);
+    }
+
+    public Page<ComidaCategoriaDTO> obtenerComidaConFiltro(String nomCom, Pageable pageable) {
+        return comidaRepository.findComidaConFiltro(nomCom, pageable);
     }
 
 }

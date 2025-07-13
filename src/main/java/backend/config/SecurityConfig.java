@@ -57,6 +57,7 @@ private JwtAuthFilter jwtAuthFilter;
                 .requestMatchers("/api/pedido-temporal/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/ordenes/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/categorias/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
+                .requestMatchers("/api/tipCompro/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/comida/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/mesas/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")
                 .requestMatchers("/api/tipopago/**").hasAnyAuthority("ROLE_MOZO", "ROLE_ADMIN")

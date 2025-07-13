@@ -30,7 +30,7 @@ public class Jwt {
     private String secretKey = "RqxPOuVfHoBA8Uq40MhJvfY6qEHOOWWvg6N9W9vt23s=";
     @Autowired
     private MozoRepository mozoRepo;
-    
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
 
@@ -41,10 +41,10 @@ public class Jwt {
                 .collect(Collectors.toList());
         claims.put("roles", roles);
         claims.put("username", userDetails.getUsername());
-        
+
         Optional<Mozo> mozoOpt = mozoRepo.findAll().stream()
-        .filter(m -> m.getCorreoMoz().equalsIgnoreCase(userDetails.getUsername()))
-        .findFirst();
+                .filter(m -> m.getCorreoMoz().equalsIgnoreCase(userDetails.getUsername()))
+                .findFirst();
 
         if (mozoOpt.isPresent()) {
             Mozo mozo = mozoOpt.get();
@@ -56,7 +56,7 @@ public class Jwt {
                 .subject(userDetails.getUsername())
                 .issuer("DCB")
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 10 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + 60 * 30 * 1000))
                 .signWith(generateKey())
                 .compact();
     }

@@ -12,11 +12,11 @@ public class UsuarioSecurity implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-        public UsuarioSecurity(String username, String password, String rol) {
+    public UsuarioSecurity(String username, String password, String rol) {
         this.username = username;
         this.password = password;
-this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + rol.toUpperCase()));
-System.out.println("===> Usuario con rol: " + rol.toUpperCase());
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + rol.toUpperCase()));
+        System.out.println("===> Usuario con rol: " + rol.toUpperCase());
 
     }
 
@@ -25,11 +25,33 @@ System.out.println("===> Usuario con rol: " + rol.toUpperCase());
         return authorities;
     }
 
-    @Override public String getPassword() { return password; }
-    @Override public String getUsername() { return username; }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

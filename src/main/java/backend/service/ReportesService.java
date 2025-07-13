@@ -29,12 +29,26 @@ public class ReportesService {
         return comprobanteRepository.ObtenerComprobantesReporte(year, month, day);
     }
 
+    public List<Map<String, Object>> reporteMensualPorComprobante(String codCompro, Integer year) {
+        return comprobanteRepository.reporteMensualPorComprobante(codCompro, year);
+    }    
+    
     public List<Map<String, Object>> obtenerTipoPagoReporte(Integer year, Integer month, Integer day) {
         return tipopagoRepository.ObtenerTipoPagoReporte(year, month, day);
     }
+    
+    public List<Map<String, Object>> reporteMensualPorTipoPago(String codTipopago, Integer year) {
+        return tipopagoRepository.reporteMensualPorTipoPago(codTipopago, year);
+    }  
 
-    public List<Map<String, Object>> obtenerComidaReporte(Integer year, Integer month, Integer day) {
-        return comidaRepository.ComidaReporte(year, month, day).stream()
+    public List<Map<String, Object>> obtenerComidaReporteMayor(Integer year, Integer month, Integer day) {
+        return comidaRepository.ComidaReporteMayor(year, month, day).stream()
+                .limit(5) 
+                .collect(Collectors.toList());
+    }
+    
+    public List<Map<String, Object>> obtenerComidaReporteMenor(Integer year, Integer month, Integer day) {
+        return comidaRepository.ComidaReporteMenor(year, month, day).stream()
                 .limit(5) 
                 .collect(Collectors.toList());
     }

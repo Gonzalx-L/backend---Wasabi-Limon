@@ -25,16 +25,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
     private MozoService mozoService;
 
     @Autowired
     private AdministradorService administradorService;
-    
+
     @Autowired
     private UsuarioDetailsService usuarioDetailsService;
 
-    
     @Autowired
     private Jwt jwtUtil;
 
@@ -68,15 +68,16 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
     }
-@PostMapping("/logout")
-public ResponseEntity<?> logout(HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        return ResponseEntity.badRequest().body("No se encontró el token");
-    }
-    String token = authHeader.substring(7);
 
-    return ResponseEntity.ok("Sesión cerrada correctamente");
-}
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body("No se encontró el token");
+        }
+        String token = authHeader.substring(7);
+
+        return ResponseEntity.ok("Sesión cerrada correctamente");
+    }
 
 }
